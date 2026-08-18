@@ -1,12 +1,19 @@
 """Constants for Dreame wet & dry vacuum integration."""
 
 DOMAIN = "dreame_wet_dry_vacuum"
+
 MANUFACTURER = "Dreame"
 MODEL = "H14 Pro"
 
 # API
+
 EU_BASE_URL = "https://eu.iot.dreame.tech:13267"
 CN_BASE_URL = "https://cn.iot.dreame.tech:13267"
+US_BASE_URL = "https://us.iot.dreame.tech:13267"
+SG_BASE_URL = "https://sg.iot.dreame.tech:13267"
+RU_BASE_URL = "https://ru.iot.dreame.tech:13267"
+IN_BASE_URL = "https://in.iot.dreame.tech:13267"
+KR_BASE_URL = "https://kr.iot.dreame.tech:13267"
 
 # DREAME_BASIC_AUTH = base64("dreame_appv1:AP^dv@z@SQYVxN88") — app client credentials
 DREAME_BASIC_AUTH = "Basic ZHJlYW1lX2FwcHYxOkFQXmR2QHpAU1FZVnhOODg="
@@ -25,40 +32,38 @@ ENDPOINTS = {
 }
 
 # Device status codes for the H14 Pro (model dreame.hold.w2306e).
-# Source: official Dreame keyDefine file, property 2.1 (French labels).
-# This mirrors the `latestStatus` field returned by device/listV2.
+# Device status codes for the H14 Pro (model dreame.hold.w2306e).
+# English labels for the status enum values.
 DEVICE_STATUS = {
-    1: "Lavage en cours",
-    2: "Hors connexion",
-    3: "En attente",
-    4: "Chargement",
-    5: "Autonettoyage",
-    6: "Séchage",
-    7: "Mode veille",
-    8: "Aspiration",
-    9: "Remplissage d'eau claire",
-    10: "Lavage du sol en pause",
-    11: "Autonettoyage en pause",
-    12: "Séchage en pause",
-    13: "Mise à niveau OTA",
-    14: "Mise à niveau du logiciel vocal",
-    15: "Charge terminée",
-    # 16-22 : "Lavage en cours" dans le dictionnaire officiel, mais chaque code
-    # correspond en réalité à un MODE de nettoyage distinct (confirmé par l'utilisateur).
-    16: "Lavage — mode Auto",
-    17: "Lavage — mode Ultra",
-    18: "Lavage — mode Aspiration",
-    19: "Lavage en cours",
-    20: "Lavage en cours",
-    21: "Lavage en cours",
-    22: "Lavage en cours",
-    23: "Séchage",
-    24: "Séchage",
-    25: "Séchage",
-    26: "Autonettoyage",
-    27: "Autonettoyage",
-    28: "Autonettoyage",
-    29: "Mode pratique en pause",
+    1: "Mopping",
+    2: "Offline",
+    3: "Idle",
+    4: "Charging",
+    5: "Self-cleaning",
+    6: "Drying",
+    7: "Sleeping",
+    8: "Vacuuming",
+    9: "Filling water",
+    10: "Mopping paused",
+    11: "Self-cleaning paused",
+    12: "Drying paused",
+    13: "OTA updating",
+    14: "Voice software updating",
+    15: "Charge complete",
+    16: "Mopping — Auto mode",
+    17: "Mopping — Ultra mode",
+    18: "Mopping — Vacuum mode",
+    19: "Mopping",
+    20: "Mopping",
+    21: "Mopping",
+    22: "Mopping",
+    23: "Drying",
+    24: "Drying",
+    25: "Drying",
+    26: "Self-cleaning",
+    27: "Self-cleaning",
+    28: "Self-cleaning",
+    29: "Convenient mode paused",
 }
 
 # Status enum names decoded from the official app plugin (index.android.bundle):
@@ -91,14 +96,14 @@ PROP_STATUS = (2, 1)  # device status (matches latestStatus)
 # Confidence: HIGH for status/battery/progress; the rest are exposed raw.
 # Meta schema per property:
 #   key, name, icon, unit, device_class ("battery"|"duration"|"timestamp")
-#   enum=True            -> map int via DEVICE_STATUS
-#   list_scalar=True     -> value arrives as a list; use first element
-#   timestamp=True       -> value is a Unix epoch (seconds)
-#   diagnostic=True      -> entity category Diagnostic
+#   enum=True -> map int via DEVICE_STATUS
+#   list_scalar=True -> value arrives as a list; use first element
+#   timestamp=True -> value is a Unix epoch (seconds)
+#   diagnostic=True -> entity category Diagnostic
 # Noms issus de la spec officielle du plugin app (index.android.bundle).
 # Le mapping SIID/PIID nommé par Dreame fait autorité ; voir debug/dumps/DECODED_SPEC.md.
 # NB : "name" est documentaire ; l'affichage passe par translation_key = "key"
-# (section "entity" de translations/en.json et fr.json).
+#      (section "entity" de translations/en.json et fr.json).
 KNOWN_MQTT_PROPS: dict[tuple[int, int], dict] = {
     # --- Service principal (SIID 1) ---
     (2, 1): {"key": "status", "name": "État", "enum": True, "icon": "mdi:robot-vacuum-variant"},
@@ -118,8 +123,8 @@ KNOWN_MQTT_PROPS: dict[tuple[int, int], dict] = {
     (1, 68): {"key": "last_vacuum_duration", "name": "Durée aspiration (dernier)", "unit": "s", "device_class": "duration", "diagnostic": True},
     (1, 69): {"key": "last_mop_duration", "name": "Durée lavage (dernier)", "unit": "s", "device_class": "duration", "diagnostic": True},
     # --- Consommables : "vie restante" = MINUTES restantes (raw, diagnostic).
-    #     Les heures/% sont exposés par des capteurs dédiés (CONSUMABLE_SENSORS).
-    #     Les props "max" (x.6/x.2) ne sont jamais publiées par le cloud → non mappées.
+    # Les heures/% sont exposés par des capteurs dédiés (CONSUMABLE_SENSORS).
+    # Les props "max" (x.6/x.2) ne sont jamais publiées par le cloud → non mappées.
     (6, 7): {"key": "front_brush_left", "name": "Brosse rouleau avant — minutes restantes", "unit": "min", "icon": "mdi:rotate-right", "diagnostic": True},
     (7, 7): {"key": "back_brush_left", "name": "Brosse rouleau arrière — minutes restantes", "unit": "min", "icon": "mdi:rotate-right", "diagnostic": True},
     (19, 3): {"key": "filter_left", "name": "Filtre — minutes restantes", "unit": "min", "icon": "mdi:air-filter", "diagnostic": True},
@@ -135,7 +140,7 @@ KNOWN_MQTT_PROPS: dict[tuple[int, int], dict] = {
     (4, 2): {"key": "error", "name": "Codes défaut", "icon": "mdi:alert-circle", "bitmask": True, "decode": "error", "diagnostic": True},
     (4, 3): {"key": "warn_push", "name": "Notification push (brut)", "icon": "mdi:bell-alert", "bitmask": True, "diagnostic": True},
     # --- Niveau d'eau / aspiration : non modélisés par le plugin sous SIID 4,
-    #     mapping empirique conservé (vu en capture live) ---
+    # mapping empirique conservé (vu en capture live) ---
     (4, 5): {"key": "water_level_set", "name": "Niveau d'eau (réglage)", "unit": "%", "list_scalar": True, "icon": "mdi:water-percent"},
     (4, 6): {"key": "water_level", "name": "Niveau d'eau", "unit": "%", "icon": "mdi:water"},
     (4, 7): {"key": "suction_mode", "name": "Mode d'aspiration", "list_scalar": True, "icon": "mdi:fan"},
@@ -148,11 +153,11 @@ KNOWN_MQTT_PROPS: dict[tuple[int, int], dict] = {
 # `full_life_min` (réf. documentée de l'app : filtre & rouleaux = 60 h = 3600 min).
 # État principal = heures restantes ; % + minutes en attributs.
 CONSUMABLE_SENSORS: list[dict] = [
-    {"key": "front_brush", "name": "Brosse rouleau avant", "left": "6.7", "max": "6.6",
+    {"key": "front_brush", "name": "Front roller brush", "left": "6.7", "max": "6.6",
      "full_life_min": 3600, "icon": "mdi:rotate-right"},
-    {"key": "back_brush", "name": "Brosse rouleau arrière", "left": "7.7", "max": "7.6",
+    {"key": "back_brush", "name": "Back roller brush", "left": "7.7", "max": "7.6",
      "full_life_min": 3600, "icon": "mdi:rotate-right"},
-    {"key": "filter", "name": "Filtre", "left": "19.3", "max": "19.2",
+    {"key": "filter", "name": "Filter", "left": "19.3", "max": "19.2",
      "full_life_min": 3600, "icon": "mdi:air-filter"},
 ]
 
@@ -161,41 +166,43 @@ CONSUMABLE_SENSORS: list[dict] = [
 CONSUMABLE_MAX_KEYS: list[str] = [c["max"] for c in CONSUMABLE_SENSORS]
 
 # ---------------------------------------------------------------------------
-# Décodage des champs warn (4.1) / error (4.2).
-# Reproduit decodeWarnV2/decodeErrorV2 du plugin de l'app : décalage cumulatif
-# puis masque. Chaque champ = (pos, cal_mask, {valeur_du_champ: libellé_FR}).
-# Les positions sont relatives (cumul des `pos` dans l'ordre). Voir DECODED_SPEC.md.
+# Decode warn (4.1) / error (4.2) bitfields.
+# Mirrors decodeWarnV2/decodeErrorV2 from the official app plugin: cumulative
+# offset then mask. Each entry = (pos, cal_mask, {field_value: label}).
+# Positions are relative (cumulative `pos` in order).
 # ---------------------------------------------------------------------------
+
 WARN_DECODE: list[tuple[int, int, dict[int, str]]] = [
-    (0, 1, {1: "Réservoir d'eau propre vide"}),
-    (1, 1, {1: "Détergent vide"}),
-    (1, 3, {1: "Brosse/tube sales — lancer l'autonettoyage",
-            2: "Brosse/tube sales — lancer l'autonettoyage",
-            3: "Brosse/tube sales — lancer l'autonettoyage"}),
+    (0, 1, {1: "Clean water tank empty"}),
+    (1, 1, {1: "Detergent empty"}),
+    (1, 3, {1: "Brush/tube dirty — run self-cleaning",
+            2: "Brush/tube dirty — run self-cleaning",
+            3: "Brush/tube dirty — run self-cleaning"}),
     (2, 1, {}), (1, 1, {}), (1, 1, {}), (1, 1, {}),
-    (1, 1, {1: "Réservoir d'eau sale à nettoyer (après autonettoyage)"}),  # bit 8
+    (1, 1, {1: "Dirty water tank needs cleaning (after self-clean)"}),  # bit 8
     (1, 1, {}), (1, 1, {}), (1, 1, {}), (1, 1, {}), (1, 1, {}), (1, 1, {}), (1, 1, {}),
-    (1, 1, {1: "Manque d'eau dans la station"}),   # bit 16
-    (1, 1, {1: "Filtre de la station à remplacer"}),  # bit 17
+    (1, 1, {1: "Station water shortage"}),  # bit 16
+    (1, 1, {1: "Station filter needs replacing"}),  # bit 17
 ]
+
 ERROR_DECODE: list[tuple[int, int, dict[int, str]]] = [
     (0, 15, {}),
-    (4, 63, {1: "Brosse rouleau non installée",
-             3: "Brosse rouleau bloquée — à nettoyer"}),  # bits 4-9
+    (4, 63, {1: "Roller brush not installed",
+             3: "Roller brush jammed — clean it"}),  # bits 4-9
     (6, 1, {}),
-    (1, 1, {1: "Réservoir d'eau sale non installé"}),   # bit 11
-    (1, 1, {1: "Réservoir d'eau sale plein — à vider"}),  # bit 12
+    (1, 1, {1: "Dirty water tank not installed"}),  # bit 11
+    (1, 1, {1: "Dirty water tank full — empty it"}),  # bit 12
     (1, 7, {}), (3, 15, {}), (4, 1, {}), (1, 1, {}), (1, 1, {}), (1, 1, {}),
-    (1, 1, {1: "Tube de l'appareil bouché"}),   # bit 24
+    (1, 1, {1: "Device tube clogged"}),  # bit 24
     (1, 1, {}),
-    (1, 1, {1: "Tube de la station bouché"}),   # bit 26
+    (1, 1, {1: "Station tube clogged"}),  # bit 26
     (1, 1, {}),
-    (1, 1, {1: "Réservoir d'eau sale bouché"}),  # bit 28
+    (1, 1, {1: "Dirty water tank clogged"}),  # bit 28
 ]
 
 
 def decode_field_alerts(value: int, table: list[tuple[int, int, dict[int, str]]]) -> list[str]:
-    """Decode a warn/error bitfield value into the list of active FR labels."""
+    """Decode a warn/error bitfield value into the list of active alert labels."""
     alerts: list[str] = []
     v = value
     for pos, cal, labels in table:
@@ -225,7 +232,7 @@ ALERT_BINARY_SENSORS: list[dict] = [
 ]
 
 # Binary properties: (siid, piid): meta.
-#   bit_mask=N  -> on when (value & N) != 0 (instead of value != 0)
+# bit_mask=N -> on when (value & N) != 0 (instead of value != 0)
 KNOWN_BINARY_PROPS: dict[tuple[int, int], dict] = {
     # Confirmé par test isolé : 17.8 = ajout auto de détergent (1=activé, 0=désactivé)
     (17, 8): {"key": "auto_detergent_17", "name": "Ajout auto détergent (capteur)", "icon": "mdi:bottle-tonic-plus", "diagnostic": True},
@@ -237,8 +244,8 @@ KNOWN_BINARY_PROPS: dict[tuple[int, int], dict] = {
 # ---------------------------------------------------------------------------
 
 # Interrupteurs booléens (0/1).
-#   optimistic=True -> l'état courant n'est PAS lisible (ni MQTT ni web) ; l'entité
-#   reflète la dernière commande envoyée (assumed_state).
+# optimistic=True -> l'état courant n'est PAS lisible (ni MQTT ni web) ; l'entité
+# reflète la dernière commande envoyée (assumed_state).
 KNOWN_SWITCH_PROPS: dict[tuple[int, int], dict] = {
     (1, 3): {"key": "light_control", "name": "Lumière", "icon": "mdi:lightbulb", "optimistic": True},
     (1, 4): {"key": "auto_mix_detergent", "name": "Ajout auto de détergent", "icon": "mdi:bottle-tonic-plus", "optimistic": True},
@@ -288,4 +295,9 @@ CONF_DEVICE_ID = "device_id"
 REGIONS = {
     "eu": "Europe",
     "cn": "China / Asia",
+    "us": "United States",
+    "sg": "Singapore / Oceania",
+    "ru": "Russia",
+    "in": "India",
+    "kr": "South Korea",
 }

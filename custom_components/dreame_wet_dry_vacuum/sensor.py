@@ -195,7 +195,7 @@ class DreameWetDryConsumableSensor(CoordinatorEntity[DreameWetDryCoordinator], S
         attrs: dict[str, Any] = {
             "minutes_remaining": left,
             "full_life_hours": round(full / 60, 1),
-            "full_life_source": "device" if from_device else "défaut (60 h)",
+            "full_life_source": "device" if from_device else "default (60 h)",
         }
         if full > 0:
             attrs["percent_remaining"] = max(0, min(100, round(left / full * 100)))

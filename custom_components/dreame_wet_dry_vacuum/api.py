@@ -1,4 +1,5 @@
 """Dreame Home cloud API client."""
+
 from __future__ import annotations
 
 import hashlib
@@ -21,6 +22,11 @@ from .const import (
     ENDPOINTS,
     EU_BASE_URL,
     CN_BASE_URL,
+    US_BASE_URL,
+    SG_BASE_URL,
+    RU_BASE_URL,
+    IN_BASE_URL,
+    KR_BASE_URL,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -28,6 +34,11 @@ _LOGGER = logging.getLogger(__name__)
 REGION_URLS = {
     "eu": EU_BASE_URL,
     "cn": CN_BASE_URL,
+    "us": US_BASE_URL,
+    "sg": SG_BASE_URL,
+    "ru": RU_BASE_URL,
+    "in": IN_BASE_URL,
+    "kr": KR_BASE_URL,
 }
 
 REQUEST_TIMEOUT = aiohttp.ClientTimeout(total=30)
@@ -137,7 +148,6 @@ class DreameAPI:
         """Authenticate and store access token."""
         session = await self._get_session()
         url = self._base_url + ENDPOINTS["token"]
-
         headers = self._get_base_headers()
         headers["authorization"] = DREAME_BASIC_AUTH
         headers["content-type"] = "application/x-www-form-urlencoded"
@@ -212,7 +222,6 @@ class DreameAPI:
         result = await self._authed_post(
             self._base_url + ENDPOINTS["device_list"], payload
         )
-
         data = result.get("data") or {}
         # Dreame nests the list under data.page.records
         records = (data.get("page") or {}).get("records") or []
@@ -223,6 +232,7 @@ class DreameAPI:
     async def get_device_snapshot(self, device_id: str) -> dict[str, Any]:
         """
         Return the cloud-cached state for a device (battery, status, online).
+
         This always works, even when the vacuum is docked/asleep, because it
         reads the last state the device reported to the cloud.
         """
@@ -247,6 +257,7 @@ class DreameAPI:
     ) -> dict[str, Any]:
         """
         Read cloud-cached property values by key ("siid.piid").
+
         Uses /dreame-user-iot/iotstatus/props, which works on this model (unlike
         the realtime get_properties RPC that returns null). Returns {key: value}
         with values parsed to native types (int / list), keys never reported are
@@ -257,7 +268,6 @@ class DreameAPI:
         result = await self._authed_post(
             self._base_url + ENDPOINTS["status_props"], payload
         )
-
         out: dict[str, Any] = {}
         for item in result.get("data") or []:
             key = item.get("key")
@@ -271,17 +281,16 @@ class DreameAPI:
     ) -> list[dict[str, Any]]:
         """
         Fetch device properties.
+
         props: list of {siid, piid} dicts
         Returns list of {siid, piid, value, code} dicts.
         """
         url = self._base_url + ENDPOINTS["send_command"].format(prefix=DREAME_IOT_PREFIX)
-
         req_id = _random_request_id()
         params = [
             {"siid": p["siid"], "piid": p["piid"], "code": 0, "updateTime": 0}
             for p in props
         ]
-
         payload = {
             "did": device_id,
             "id": req_id,
@@ -293,7 +302,6 @@ class DreameAPI:
                 "from": "100000",
             },
         }
-
         result = await self._authed_post(url, payload)
         return result.get("data", {}).get("result", [])
 
@@ -302,7 +310,6 @@ class DreameAPI:
     ) -> bool:
         """Set a single device property."""
         url = self._base_url + ENDPOINTS["send_command"].format(prefix=DREAME_IOT_PREFIX)
-
         req_id = _random_request_id()
         payload = {
             "did": device_id,
@@ -315,7 +322,6 @@ class DreameAPI:
                 "from": "100000",
             },
         }
-
         result = await self._authed_post(url, payload)
         results = result.get("data", {}).get("result", [])
         return all(r.get("code", -1) == 0 for r in results)
@@ -325,7 +331,6 @@ class DreameAPI:
     ) -> bool:
         """Call a device action."""
         url = self._base_url + ENDPOINTS["send_command"].format(prefix=DREAME_IOT_PREFIX)
-
         req_id = _random_request_id()
         payload = {
             "did": device_id,
@@ -343,7 +348,6 @@ class DreameAPI:
                 "from": "100000",
             },
         }
-
         result = await self._authed_post(url, payload)
         return result.get("data", {}).get("code", -1) == 0
 
@@ -352,6 +356,7 @@ class DreameAPI:
     ) -> dict[tuple[int, int], Any]:
         """
         Probe all siid/piid combinations and return those that return valid values.
+
         Useful for discovering what a new device exposes.
         """
         all_props = [
