@@ -34,6 +34,7 @@ EXPECTED: dict[str, set[str]] = {
 TRANSLATION_FILES = [
     COMPONENT / "strings.json",
     COMPONENT / "translations" / "en.json",
+    COMPONENT / "translations" / "de.json",
     COMPONENT / "translations" / "fr.json",
 ]
 

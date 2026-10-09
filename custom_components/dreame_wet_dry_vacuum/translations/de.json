@@ -1,0 +1,217 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Dreame Wet & Dry Vacuum",
+        "description": "Verbinde deinen Dreame-Nass-Trockensauger (entwickelt und getestet mit dem H14 Pro) mit Home Assistant. Verwende dazu die Zugangsdaten deiner Dreamehome-App.",
+        "data": {
+          "username": "E-Mail",
+          "password": "Passwort",
+          "region": "Region"
+        }
+      },
+      "device": {
+        "title": "Gerät auswählen",
+        "description": "Es wurden mehrere Dreame-Geräte gefunden. Wähle deinen Nass-Trockensauger aus.",
+        "data": {
+          "device_id": "Gerät"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Erneut anmelden",
+        "description": "Das Dreame-Passwort für {username} ist nicht mehr gültig. Gib das neue Passwort ein.",
+        "data": {
+          "password": "Passwort"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Ungültige E-Mail-Adresse oder ungültiges Passwort.",
+      "cannot_connect": "Verbindung zur Dreame-Cloud nicht möglich. Prüfe deine Internetverbindung.",
+      "no_devices": "In diesem Konto wurden keine Geräte gefunden."
+    },
+    "abort": {
+      "already_configured": "Das Gerät ist bereits eingerichtet.",
+      "reauth_successful": "Die erneute Anmeldung war erfolgreich."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "back_brush_left": {
+        "name": "Hintere Walzenbürste – verbleibende Minuten"
+      },
+      "battery": {
+        "name": "Akku"
+      },
+      "clean_count_2": {
+        "name": "Reinigungszähler (alt.)"
+      },
+      "consumable_back_brush": {
+        "name": "Hintere Walzenbürste – verbleibende Stunden"
+      },
+      "consumable_filter": {
+        "name": "Filter – verbleibende Stunden"
+      },
+      "consumable_front_brush": {
+        "name": "Vordere Walzenbürste – verbleibende Stunden"
+      },
+      "detergent_fav": {
+        "name": "Reinigungsmittel-Dosiermodus"
+      },
+      "dustbag_left": {
+        "name": "Staubbeutel – verbleibende Minuten"
+      },
+      "elec_water": {
+        "name": "Elektrolyse / Reinigungsmittel"
+      },
+      "error": {
+        "name": "Fehlercodes"
+      },
+      "filter_left": {
+        "name": "Filter – verbleibende Minuten"
+      },
+      "front_brush_left": {
+        "name": "Vordere Walzenbürste – verbleibende Minuten"
+      },
+      "last_clean_duration": {
+        "name": "Dauer der letzten Reinigung"
+      },
+      "last_clean_time": {
+        "name": "Letzte Reinigung"
+      },
+      "last_mop_duration": {
+        "name": "Dauer des letzten Wischens"
+      },
+      "last_vacuum_duration": {
+        "name": "Dauer des letzten Saugens"
+      },
+      "level_drying": {
+        "name": "Trocknungsstufe"
+      },
+      "level_washing": {
+        "name": "Waschstufe"
+      },
+      "start_time": {
+        "name": "Startzeit"
+      },
+      "status": {
+        "name": "Status"
+      },
+      "suck_brush_left": {
+        "name": "Saugbürste – verbleibende Minuten"
+      },
+      "suck_filter_left": {
+        "name": "Saugfilter – verbleibende Minuten"
+      },
+      "suction_mode": {
+        "name": "Saugmodus"
+      },
+      "total_clean_count": {
+        "name": "Reinigungen gesamt"
+      },
+      "total_time": {
+        "name": "Gesamtlaufzeit"
+      },
+      "total_time_self_clean": {
+        "name": "Selbstreinigungszeit gesamt"
+      },
+      "total_time_self_dry": {
+        "name": "Trocknungszeit gesamt"
+      },
+      "warn": {
+        "name": "Warnungen"
+      },
+      "warn_push": {
+        "name": "Push-Benachrichtigung (roh)"
+      },
+      "water_level": {
+        "name": "Wasserstand"
+      },
+      "water_level_set": {
+        "name": "Wassermenge (Einstellung)"
+      },
+      "work_mode": {
+        "name": "Betriebsmodus"
+      }
+    },
+    "binary_sensor": {
+      "auto_detergent_17": {
+        "name": "Automatisches Reinigungsmittel (Sensor)"
+      },
+      "charging": {
+        "name": "Lädt"
+      },
+      "clean_water_empty": {
+        "name": "Frischwassertank leer"
+      },
+      "detergent_empty": {
+        "name": "Reinigungsmittel leer"
+      },
+      "dirty_tank_full": {
+        "name": "Schmutzwassertank voll"
+      },
+      "dirty_tank_missing": {
+        "name": "Schmutzwassertank fehlt"
+      },
+      "dirty_tank_not_clean": {
+        "name": "Schmutzwassertank reinigen"
+      },
+      "needs_self_clean": {
+        "name": "Selbstreinigung empfohlen (Bürste/Rohr verschmutzt)"
+      },
+      "online": {
+        "name": "Online"
+      }
+    },
+    "switch": {
+      "auto_backwash": {
+        "name": "Automatisches Spülen"
+      },
+      "auto_dry_switch": {
+        "name": "Automatische Trocknung"
+      },
+      "auto_mix_detergent": {
+        "name": "Automatische Reinigungsmitteldosierung"
+      },
+      "custom_switch": {
+        "name": "Benutzerdefinierter Modus"
+      },
+      "light_control": {
+        "name": "Licht"
+      },
+      "time_dry_after_clean": {
+        "name": "Zeitgesteuerte Trocknung nach der Reinigung"
+      }
+    },
+    "number": {
+      "brush_speed": {
+        "name": "Bürstendrehzahl (benutzerdefiniert)"
+      },
+      "clean_power": {
+        "name": "Saugleistung (benutzerdefiniert)"
+      },
+      "clean_water": {
+        "name": "Wasserdurchfluss (benutzerdefiniert)"
+      },
+      "time_dry_value": {
+        "name": "Dauer der zeitgesteuerten Trocknung"
+      },
+      "volume": {
+        "name": "Lautstärke der Sprachansage"
+      }
+    },
+    "select": {
+      "power_wheel": {
+        "name": "Eigenantriebskraft"
+      }
+    },
+    "button": {
+      "start_self_clean": {
+        "name": "Selbstreinigung starten"
+      },
+      "start_self_dry": {
+        "name": "Trocknung starten"
+      }
+    }
+  }
+}
