@@ -295,7 +295,7 @@ class DreameAPI:
         }
 
         result = await self._authed_post(url, payload)
-        return result.get("data", {}).get("result", [])
+        return (result.get("data") or {}).get("result") or []
 
     async def set_property(
         self, device_id: str, siid: int, piid: int, value: Any
@@ -317,7 +317,8 @@ class DreameAPI:
         }
 
         result = await self._authed_post(url, payload)
-        results = result.get("data", {}).get("result", [])
+        # The cloud may answer an accepted command with "data": null
+        results = (result.get("data") or {}).get("result") or []
         return all(r.get("code", -1) == 0 for r in results)
 
     async def call_action(
@@ -345,7 +346,7 @@ class DreameAPI:
         }
 
         result = await self._authed_post(url, payload)
-        return result.get("data", {}).get("code", -1) == 0
+        return (result.get("data") or {}).get("code", -1) == 0
 
     async def discover_properties(
         self, device_id: str, siid_range: range = range(1, 11), piid_range: range = range(1, 21)

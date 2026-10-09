@@ -193,3 +193,32 @@ class TestAuthedRequests:
         assert snap["name"] == "H14 Pro"
         assert snap["battery"] == 100
         assert snap["online"] is True
+
+
+class TestCommands:
+    """The cloud may answer a command with "data": null (seen live on an H14 Pro
+    when setting 23.1: the device applied the value, but HA raised AttributeError)."""
+
+    @staticmethod
+    def _api(body):
+        def handler(url, kwargs):
+            if "oauth/token" in url:
+                return FakeResponse(200, TOKEN_OK)
+            return FakeResponse(200, body)
+
+        return DreameAPI("u", "p", session=FakeSession(handler))
+
+    def test_set_property_null_data_does_not_raise(self):
+        assert run(self._api({"code": 0, "data": None}).set_property("did", 23, 1, 1)) is True
+
+    def test_set_property_checks_result_codes(self):
+        ok = {"data": {"result": [{"siid": 23, "piid": 1, "code": 0}]}}
+        rejected = {"data": {"result": [{"siid": 23, "piid": 1, "code": -4004}]}}
+        assert run(self._api(ok).set_property("did", 23, 1, 1)) is True
+        assert run(self._api(rejected).set_property("did", 23, 1, 1)) is False
+
+    def test_get_properties_null_data_returns_empty(self):
+        assert run(self._api({"data": None}).get_properties("did", [{"siid": 2, "piid": 1}])) == []
+
+    def test_call_action_null_data_does_not_raise(self):
+        assert run(self._api({"data": None}).call_action("did", 4, 1)) is False
