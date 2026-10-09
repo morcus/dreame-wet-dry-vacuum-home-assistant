@@ -86,6 +86,8 @@ class DreameWetDrySensor(CoordinatorEntity[DreameWetDryCoordinator], SensorEntit
         self._is_timestamp = meta.get("timestamp", False)
         self._is_bitmask = meta.get("bitmask", False)
         self._decode = meta.get("decode")
+        # {int_value: option_key}; labels come from the "state" translations
+        self._options: dict[int, str] | None = meta.get("options")
 
         self._attr_unique_id = f"{coordinator.device_id}_{self._data_key}"
         self._attr_translation_key = meta["key"]
@@ -96,6 +98,9 @@ class DreameWetDrySensor(CoordinatorEntity[DreameWetDryCoordinator], SensorEntit
             self._attr_state_class = sc
         if meta.get("unit"):
             self._attr_native_unit_of_measurement = meta["unit"]
+        if self._options:
+            self._attr_device_class = SensorDeviceClass.ENUM
+            self._attr_options = list(self._options.values())
         if meta.get("device_class") == "battery":
             self._attr_state_class = SensorStateClass.MEASUREMENT
         if meta.get("diagnostic") or not meta:
@@ -121,6 +126,13 @@ class DreameWetDrySensor(CoordinatorEntity[DreameWetDryCoordinator], SensorEntit
                 return datetime.fromtimestamp(int(raw), tz=timezone.utc)
             except (ValueError, TypeError, OSError):
                 return None
+        if self._options:
+            # Unknown values would be rejected by the ENUM device class;
+            # the raw value stays available as an attribute.
+            try:
+                return self._options.get(int(raw))
+            except (ValueError, TypeError):
+                return None
         if self._is_enum:
             try:
                 return DEVICE_STATUS.get(int(raw), str(raw))
@@ -135,7 +147,7 @@ class DreameWetDrySensor(CoordinatorEntity[DreameWetDryCoordinator], SensorEntit
     def extra_state_attributes(self) -> dict[str, Any]:
         attrs = {"siid": self._key[0], "piid": self._key[1]}
         raw = self.coordinator.data.get(self._data_key)
-        if self._is_enum or self._is_timestamp or self._list_scalar:
+        if self._is_enum or self._options or self._is_timestamp or self._list_scalar:
             attrs["raw_value"] = raw
         if self._is_bitmask and raw is not None:
             try:

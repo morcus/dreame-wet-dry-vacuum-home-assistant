@@ -56,7 +56,11 @@
         "name": "Front roller brush — hours left"
       },
       "detergent_fav": {
-        "name": "Detergent preference"
+        "name": "Detergent preference",
+        "state": {
+          "smart": "Smart dosing",
+          "powerful": "Powerful stain removal"
+        }
       },
       "dustbag_left": {
         "name": "Dust bag — minutes left"
@@ -202,7 +206,12 @@
     },
     "select": {
       "power_wheel": {
-        "name": "Traction force"
+        "name": "Traction force",
+        "state": {
+          "light": "Light",
+          "balanced": "Balanced",
+          "strong": "Strong"
+        }
       }
     },
     "button": {

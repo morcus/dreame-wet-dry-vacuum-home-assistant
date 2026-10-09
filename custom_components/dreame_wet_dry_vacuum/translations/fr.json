@@ -56,7 +56,11 @@
         "name": "Brosse rouleau avant — heures restantes"
       },
       "detergent_fav": {
-        "name": "Préférence détergent"
+        "name": "Préférence détergent",
+        "state": {
+          "smart": "Dosage intelligent",
+          "powerful": "Détachage puissant"
+        }
       },
       "dustbag_left": {
         "name": "Sac à poussière — minutes restantes"
@@ -202,7 +206,12 @@
     },
     "select": {
       "power_wheel": {
-        "name": "Force de traction"
+        "name": "Force de traction",
+        "state": {
+          "light": "Léger",
+          "balanced": "Équilibré",
+          "strong": "Fort"
+        }
       }
     },
     "button": {

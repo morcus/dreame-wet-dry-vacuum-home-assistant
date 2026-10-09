@@ -92,6 +92,7 @@ PROP_STATUS = (2, 1)  # device status (matches latestStatus)
 # Meta schema per property:
 #   key, name, icon, unit, device_class ("battery"|"duration"|"timestamp")
 #   enum=True            -> map int via DEVICE_STATUS
+#   options={int: key}   -> enum sensor; keys are translated via the "state" section
 #   list_scalar=True     -> value arrives as a list; use first element
 #   timestamp=True       -> value is a Unix epoch (seconds)
 #   diagnostic=True      -> entity category Diagnostic
@@ -129,7 +130,10 @@ KNOWN_MQTT_PROPS: dict[tuple[int, int], dict] = {
     (22, 7): {"key": "suck_filter_left", "name": "Filtre d'aspiration — minutes restantes", "unit": "min", "icon": "mdi:air-filter", "diagnostic": True},
     # --- Réglages reflétés en lecture (aussi exposés comme contrôles, voir plus bas) ---
     (16, 3): {"key": "elec_water", "name": "Électrolyse / détergent", "icon": "mdi:flash", "diagnostic": True},
-    (1, 67): {"key": "detergent_fav", "name": "Préférence détergent", "icon": "mdi:bottle-tonic-plus", "diagnostic": True},
+    # Mode de dosage du détergent (vérifié dans l'app : 2 = dosage intelligent,
+    # 3 = détachage puissant). Libellés traduits via la section "state".
+    (1, 67): {"key": "detergent_fav", "name": "Préférence détergent", "icon": "mdi:bottle-tonic-plus", "diagnostic": True,
+              "options": {2: "smart", 3: "powerful"}},
     # --- Alertes / défauts (SIID 4, noms du plugin : warn/error/warnPush) ---
     (4, 1): {"key": "warn", "name": "Avertissements", "icon": "mdi:alert", "bitmask": True, "decode": "warn", "diagnostic": True},
     (4, 2): {"key": "error", "name": "Codes défaut", "icon": "mdi:alert-circle", "bitmask": True, "decode": "error", "diagnostic": True},
@@ -260,13 +264,16 @@ KNOWN_NUMBER_PROPS: dict[tuple[int, int], dict] = {
     (16, 4): {"key": "brush_speed", "name": "Vitesse de brosse (perso)", "icon": "mdi:rotate-right", "min": 0, "max": 3, "step": 1, "optimistic": True, "config": True},
 }
 
-# Listes déroulantes : {options: {int_value: label}}
+# Listes déroulantes : {options: {int_value: option_key}}
+# Les option_key sont traduits via entity.select.<key>.state.<option_key>.
 KNOWN_SELECT_PROPS: dict[tuple[int, int], dict] = {
     (23, 1): {
         "key": "power_wheel",
         "name": "Force de traction",
         "icon": "mdi:car-traction-control",
-        "options": {0: "Léger", 1: "Équilibré", 2: "Fort"},
+        # Vérifié sur H14 Pro (app) : 0 = équilibré, 1 = léger, 2 = fort.
+        # Ordre du dict = ordre affiché (léger, équilibré, fort).
+        "options": {1: "light", 0: "balanced", 2: "strong"},
         "optimistic": True,
     },
 }

@@ -34,6 +34,7 @@ EXPECTED: dict[str, set[str]] = {
 TRANSLATION_FILES = [
     COMPONENT / "strings.json",
     COMPONENT / "translations" / "en.json",
+    COMPONENT / "translations" / "de.json",
     COMPONENT / "translations" / "fr.json",
 ]
 
@@ -55,3 +56,30 @@ def test_no_orphan_translation_keys(path: Path):
     for platform, translated in entity.items():
         orphans = set(translated) - EXPECTED.get(platform, set())
         assert not orphans, f"{path.name}: translations for unknown {platform} keys {sorted(orphans)}"
+
+
+# {(platform, translation_key): option keys} for entities with translated states
+EXPECTED_STATES: dict[tuple[str, str], set[str]] = {
+    ("select", m["key"]): set(m["options"].values()) for m in KNOWN_SELECT_PROPS.values()
+} | {
+    ("sensor", m["key"]): set(m["options"].values())
+    for m in KNOWN_MQTT_PROPS.values()
+    if "options" in m
+}
+
+
+@pytest.mark.parametrize("path", TRANSLATION_FILES, ids=lambda p: p.name)
+def test_all_option_states_translated(path: Path):
+    entity = json.loads(path.read_text(encoding="utf-8"))["entity"]
+    for (platform, key), options in EXPECTED_STATES.items():
+        states = entity[platform][key].get("state", {})
+        assert set(states) == options, f"{path.name}: {platform}.{key} states {sorted(states)} != {sorted(options)}"
+        for option in options:
+            assert states[option], f"{path.name}: empty state label for {platform}.{key}.{option}"
+
+
+def test_option_keys_are_valid_translation_keys():
+    # hassfest only accepts lowercase snake_case state keys
+    for (_, key), options in EXPECTED_STATES.items():
+        for option in options:
+            assert option.isascii() and option == option.lower() and " " not in option, f"{key}: {option!r}"

@@ -44,7 +44,7 @@ This is a *wet & dry stick* vacuum (not a robot), so there is **no `vacuum` enti
 
 > Some controls are *optimistic*: the device does not report their current value back, so the entity reflects the last command you sent.
 
-Entity names are translated (English and French) and follow your Home Assistant UI language.
+Entity names are translated (English, French and German) and follow your Home Assistant UI language.
 
 ---
 
