@@ -3,6 +3,42 @@
 DOMAIN = "dreame_wet_dry_vacuum"
 MANUFACTURER = "Dreame"
 MODEL = "H14 Pro"
+H14_PRO_MODEL = "dreame.hold.w2306e"
+H15_MIX_MODEL = "dreame.hold.w2506"
+SUPPORTED_MODELS = {H14_PRO_MODEL, H15_MIX_MODEL}
+H15_MIX_DIRTY_TANK_FULL_BIT = 4096  # Observed on this model on 2026-10-12.
+
+# These readings were observed on an H15 Mix on 2026-10-12. H14 controls and
+# warning bit definitions must not be assumed to apply to a different model.
+H15_MIX_READABLE_PROPS = {
+    (1, 28), (1, 29), (1, 30), (1, 47), (1, 54), (1, 64),
+    (2, 1), (3, 1), (6, 7), (19, 3), (21, 7),
+}
+
+# Model-specific state names from the H15 Mix keyDefine v6 published by Dreame.
+H15_MIX_STATUS_EN = {
+    **dict.fromkeys((1, 16, 17, 18, 19, 20, 21, 22, 40, 41), "Mopping"),
+    **dict.fromkeys((6, 23, 24, 25, 32, 33), "Drying"),
+    **dict.fromkeys((26, 27, 28), "Hot-water self-cleaning"),
+    **dict.fromkeys((11, 30, 31), "Self-cleaning paused"),
+    2: "Offline", 3: "Standby", 4: "Charging", 5: "Self-cleaning",
+    7: "Sleeping", 8: "Vacuuming", 9: "Add clean water",
+    10: "Mopping paused", 12: "Drying paused", 13: "Updating",
+    14: "Updating voice package", 15: "Charged", 29: "Vacuuming paused",
+    46: "Carpet spot cleaning", 48: "Carpet spot cleaning paused",
+}
+H15_MIX_STATUS_DE = {
+    **dict.fromkeys((1, 16, 17, 18, 19, 20, 21, 22, 40, 41), "Wischen"),
+    **dict.fromkeys((6, 23, 24, 25, 32, 33), "Trocknung"),
+    **dict.fromkeys((26, 27, 28), "Heißwasser-Selbstreinigung"),
+    **dict.fromkeys((11, 30, 31), "Selbstreinigung pausiert"),
+    2: "Offline", 3: "Bereit", 4: "Laden", 5: "Selbstreinigung",
+    7: "Ruhemodus", 8: "Staubsaugen", 9: "Frischwasser nachfüllen",
+    10: "Wischen pausiert", 12: "Trocknung pausiert", 13: "Aktualisierung",
+    14: "Sprachpaket-Aktualisierung", 15: "Vollständig geladen",
+    29: "Staubsaugen pausiert", 46: "Teppichfleckenreinigung",
+    48: "Teppichfleckenreinigung pausiert",
+}
 
 # API
 EU_BASE_URL = "https://eu.iot.dreame.tech:13267"

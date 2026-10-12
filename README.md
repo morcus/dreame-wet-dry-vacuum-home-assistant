@@ -2,7 +2,7 @@
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
 
-A custom [Home Assistant](https://www.home-assistant.io/) integration for **Dreame wet & dry stick vacuums**, developed and tested against the **Dreame H14 Pro** (`dreame.hold.w2306e`).
+A custom [Home Assistant](https://www.home-assistant.io/) integration for **Dreame wet & dry stick vacuums**, tested with the **Dreame H14 Pro** (`dreame.hold.w2306e`) and **H15 Mix** (`dreame.hold.w2506`).
 
 It connects to the Dreame cloud, authenticates with your Dreame account, and exposes the device's status, statistics, consumables, alerts and settings as Home Assistant entities. Live state updates are delivered through the cloud **MQTT push** feed, with a periodic web poll as a fallback.
 
@@ -45,6 +45,12 @@ This is a *wet & dry stick* vacuum (not a robot), so there is **no `vacuum` enti
 > Some controls are *optimistic*: the device does not report their current value back, so the entity reflects the last command you sent.
 
 Entity names are translated (English and French) and follow your Home Assistant UI language.
+
+### H15 Mix support
+
+The H15 Mix exposes a smaller, model-specific set of entities: charging/activity state, battery, washing and drying progress, cleaning count and last-clean information, and the consumable readings observed on this model. Its state codes use Dreame's H15 Mix key definitions. On-device testing confirmed the cloud-to-Home Assistant status feed and a complete self-cleaning-to-drying transition.
+
+Only **Start self-cleaning** is exposed as a control. It is available while the device is online and charging on its station, unless the verified **Dirty water tank full** alert is active. Before using it, fill the clean-water tank and ensure the dirty-water tank is installed and not full, as directed by the [H15 Mix manual](https://global.dreametech.com/pages/h15-mix-user-manual-1). The device can return command code `1` while still starting the cycle; the button verifies sustained activity or reports the specific full-tank error when the device pauses. The full-tank alert was observed on the H15 Mix as property `4.2` bit `4096`. After emptying and reseating the tank, the device took a few minutes to clear the cloud-reported error and re-enable the button. Other H14 Pro settings and warning-bit interpretations are deliberately not applied to the H15 Mix until verified on that model.
 
 ---
 

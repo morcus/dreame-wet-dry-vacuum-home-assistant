@@ -13,6 +13,7 @@ import aiohttp
 from Crypto.Cipher import AES
 
 from .const import (
+    CN_BASE_URL,
     DREAME_BASIC_AUTH,
     DREAME_IOT_PREFIX,
     DREAME_PASSWORD_SALT,
@@ -20,7 +21,6 @@ from .const import (
     DREAME_TENANT_ID,
     ENDPOINTS,
     EU_BASE_URL,
-    CN_BASE_URL,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -295,7 +295,8 @@ class DreameAPI:
         }
 
         result = await self._authed_post(url, payload)
-        return result.get("data", {}).get("result", [])
+        data = result.get("data") or {}
+        return data.get("result") or []
 
     async def set_property(
         self, device_id: str, siid: int, piid: int, value: Any
@@ -317,8 +318,15 @@ class DreameAPI:
         }
 
         result = await self._authed_post(url, payload)
-        results = result.get("data", {}).get("result", [])
-        return all(r.get("code", -1) == 0 for r in results)
+        if result.get("code") != 0:
+            return False
+        results = (result.get("data") or {}).get("result")
+        return (
+            isinstance(results, list)
+            and len(results) == 1
+            and isinstance(results[0], dict)
+            and results[0].get("code") == 0
+        )
 
     async def call_action(
         self, device_id: str, siid: int, aiid: int, params: list | None = None

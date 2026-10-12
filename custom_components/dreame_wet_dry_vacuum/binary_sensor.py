@@ -11,7 +11,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from . import DreameWetDryConfigEntry
-from .const import ALERT_BINARY_SENSORS, KNOWN_BINARY_PROPS
+from .const import ALERT_BINARY_SENSORS, H15_MIX_MODEL, KNOWN_BINARY_PROPS
 from .coordinator import DreameWetDryCoordinator
 from .entity import build_device_info
 
@@ -32,6 +32,15 @@ async def async_setup_entry(
         DreameWetDryOnlineSensor(coordinator),
         DreameWetDryChargingSensor(coordinator),
     ]
+    if coordinator.device_info_raw.get("model") == H15_MIX_MODEL:
+        # 4.2 bit 4096 was observed when this H15 Mix rejected self-cleaning
+        # with a full dirty-water tank. Other H14 alert bits remain unverified.
+        tank_full = next(
+            meta for meta in ALERT_BINARY_SENSORS if meta["key"] == "dirty_tank_full"
+        )
+        entities.append(DreameWetDryAlertBinary(coordinator, tank_full))
+        async_add_entities(entities)
+        return
     for key, meta in KNOWN_BINARY_PROPS.items():
         entities.append(DreameWetDryPropBinary(coordinator, key, meta))
     for meta in ALERT_BINARY_SENSORS:

@@ -2,10 +2,14 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
-from homeassistant.components.sensor import SensorDeviceClass, SensorEntity, SensorStateClass
+from homeassistant.components.sensor import (
+    SensorDeviceClass,
+    SensorEntity,
+    SensorStateClass,
+)
 from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -16,6 +20,10 @@ from .const import (
     CONSUMABLE_SENSORS,
     DEVICE_STATUS,
     ERROR_DECODE,
+    H15_MIX_MODEL,
+    H15_MIX_READABLE_PROPS,
+    H15_MIX_STATUS_DE,
+    H15_MIX_STATUS_EN,
     KNOWN_MQTT_PROPS,
     WARN_DECODE,
     decode_field_alerts,
@@ -44,6 +52,7 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     coordinator: DreameWetDryCoordinator = entry.runtime_data
+    h15_mix = coordinator.device_info_raw.get("model") == H15_MIX_MODEL
     added: set[tuple[int, int]] = set()
 
     @callback
@@ -53,7 +62,9 @@ async def async_setup_entry(
             # Only create sensors for *recognised* properties. Props handled by
             # another platform (switch/number/select/button) or not yet identified
             # are intentionally not turned into generic "Propriété X.Y" sensors.
-            if key in added or key not in KNOWN_MQTT_PROPS:
+            if key in added or key not in KNOWN_MQTT_PROPS or (
+                h15_mix and key not in H15_MIX_READABLE_PROPS
+            ):
                 continue
             added.add(key)
             entities.append(DreameWetDrySensor(coordinator, key))
@@ -66,7 +77,9 @@ async def async_setup_entry(
     # Consumable life sensors: state = hours remaining (left / 60, no constant),
     # with percent + minutes as attributes.
     async_add_entities(
-        DreameWetDryConsumableSensor(coordinator, meta) for meta in CONSUMABLE_SENSORS
+        DreameWetDryConsumableSensor(coordinator, meta)
+        for meta in CONSUMABLE_SENSORS
+        if not h15_mix or tuple(map(int, meta["left"].split("."))) in H15_MIX_READABLE_PROPS
     )
 
 
@@ -118,11 +131,18 @@ class DreameWetDrySensor(CoordinatorEntity[DreameWetDryCoordinator], SensorEntit
             return None
         if self._is_timestamp:
             try:
-                return datetime.fromtimestamp(int(raw), tz=timezone.utc)
+                return datetime.fromtimestamp(int(raw), tz=UTC)
             except (ValueError, TypeError, OSError):
                 return None
         if self._is_enum:
             try:
+                if self.coordinator.device_info_raw.get("model") == H15_MIX_MODEL:
+                    states = (
+                        H15_MIX_STATUS_DE
+                        if self.coordinator.hass.config.language.startswith("de")
+                        else H15_MIX_STATUS_EN
+                    )
+                    return states.get(int(raw), str(raw))
                 return DEVICE_STATUS.get(int(raw), str(raw))
             except (ValueError, TypeError):
                 return str(raw)

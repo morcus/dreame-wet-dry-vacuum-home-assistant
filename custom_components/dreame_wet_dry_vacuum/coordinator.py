@@ -80,6 +80,7 @@ class DreameWetDryCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self.new_prop_callback: Callable[[set[tuple[int, int]]], None] | None = None
         self.mqtt: DreameMqttClient | None = None
         self._unsub_poll: Callable[[], None] | None = None
+        self.stopping = False
 
     @callback
     def start_polling(self) -> None:
@@ -98,8 +99,16 @@ class DreameWetDryCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         await self.async_refresh()
 
     async def async_shutdown(self) -> None:
+        self.stopping = True
         self.stop_polling()
         await super().async_shutdown()
+
+    async def async_on_ha_stop(self, _event: Any) -> None:
+        """Stop the MQTT thread before Home Assistant closes its event loop."""
+        self.stopping = True
+        self.stop_polling()
+        if self.mqtt:
+            await self.hass.async_add_executor_job(self.mqtt.stop)
 
     def start_mqtt(self) -> None:
         """Create and start the MQTT client.
@@ -134,7 +143,14 @@ class DreameWetDryCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     def _handle_mqtt_update(self, state: dict[tuple[int, int], Any]) -> None:
         """Called from the MQTT thread when properties change."""
         # Marshal everything (including the props mutation) to the HA loop
-        self.hass.loop.call_soon_threadsafe(self._apply_mqtt_state, dict(state))
+        if self.stopping or self.hass.loop.is_closed():
+            return
+        try:
+            self.hass.loop.call_soon_threadsafe(self._apply_mqtt_state, dict(state))
+        except RuntimeError:
+            # The loop may close between the check and scheduling.
+            if not self.hass.loop.is_closed():
+                raise
 
     @callback
     def _apply_mqtt_state(self, state: dict[tuple[int, int], Any]) -> None:
@@ -168,9 +184,9 @@ class DreameWetDryCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
         if snapshot:
             self.snapshot = snapshot
-            if snapshot.get("battery") is not None and (3, 1) not in self.props:
+            if snapshot.get("battery") is not None:
                 self.props[(3, 1)] = snapshot["battery"]
-            if snapshot.get("status") is not None and (2, 1) not in self.props:
+            if snapshot.get("status") is not None:
                 self.props[(2, 1)] = snapshot["status"]
             # Refresh MQTT credentials if the token rotated (it expires after 2 h)
             if self.mqtt and self.api.access_token:
@@ -186,5 +202,9 @@ class DreameWetDryCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 self.props[(int(s), int(p))] = value
         except (DreameAPIError, ValueError) as err:
             _LOGGER.debug("status_props poll failed (non-fatal): %s", err)
+
+        # Cached properties can retain the last active state after disconnect.
+        if snapshot and snapshot.get("online") is False:
+            self.props[(2, 1)] = 2
 
         return self._build_data()

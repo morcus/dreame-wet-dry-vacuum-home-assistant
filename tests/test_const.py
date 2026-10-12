@@ -5,6 +5,9 @@ from custom_components.dreame_wet_dry_vacuum.const import (
     CONSUMABLE_SENSORS,
     DEVICE_STATUS,
     ERROR_DECODE,
+    H15_MIX_READABLE_PROPS,
+    H15_MIX_STATUS_DE,
+    H15_MIX_STATUS_EN,
     KNOWN_MQTT_PROPS,
     STATUS_GROUP,
     WARN_DECODE,
@@ -62,6 +65,12 @@ class TestDecodeFieldAlerts:
 
 
 class TestTableConsistency:
+    def test_h15_status_tables_cover_same_codes_and_live_states(self):
+        assert set(H15_MIX_STATUS_DE) == set(H15_MIX_STATUS_EN)
+        assert H15_MIX_STATUS_DE[4] == "Laden"
+        assert H15_MIX_STATUS_DE[26] == "Heißwasser-Selbstreinigung"
+        assert (2, 1) in H15_MIX_READABLE_PROPS
+
     def test_status_group_codes_are_known_statuses(self):
         assert set(STATUS_GROUP) <= set(DEVICE_STATUS)
 

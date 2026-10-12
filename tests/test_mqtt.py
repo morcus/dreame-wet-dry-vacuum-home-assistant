@@ -56,6 +56,15 @@ class TestOnMessage:
         assert client.state == {}
         assert updates == []
 
+    def test_unexpected_json_shapes_are_ignored(self):
+        updates: list = []
+        client = make_client(updates)
+        client._on_message(None, None, FakeMsg([]))
+        client._on_message(None, None, FakeMsg({"data": []}))
+        client._on_message(None, None, FakeMsg({"params": {"siid": 2}}))
+        assert client.state == {}
+        assert updates == []
+
     def test_items_without_siid_piid_are_skipped(self):
         updates: list = []
         client = make_client(updates)
@@ -114,3 +123,21 @@ class TestTopic:
             bind_domain="host-only", on_update=lambda s: None,
         )
         assert client._port == 19973
+
+
+class TestStop:
+    def test_disconnect_precedes_loop_stop(self):
+        events = []
+
+        class FakePahoClient:
+            def disconnect(self):
+                events.append("disconnect")
+
+            def loop_stop(self):
+                events.append("loop_stop")
+
+        client = make_client([])
+        client._client = FakePahoClient()
+        client.stop()
+        assert events == ["disconnect", "loop_stop"]
+        assert client._client is None

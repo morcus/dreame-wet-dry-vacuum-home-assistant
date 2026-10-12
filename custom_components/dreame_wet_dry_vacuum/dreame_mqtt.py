@@ -96,11 +96,11 @@ class DreameMqttClient:
 
     def stop(self) -> None:
         if self._client:
-            self._client.loop_stop()
             try:
                 self._client.disconnect()
-            except Exception:  # noqa: BLE001
-                pass
+            except Exception as err:  # noqa: BLE001
+                _LOGGER.debug("Dreame MQTT disconnect failed: %s", err)
+            self._client.loop_stop()
             self._client = None
 
     def _on_connect(self, client, userdata, flags, reason_code, properties) -> None:
@@ -123,7 +123,12 @@ class DreameMqttClient:
             data = json.loads(payload)
         except (ValueError, UnicodeDecodeError):
             return
-        params = data.get("data", {}).get("params") or data.get("params") or []
+        if not isinstance(data, dict):
+            return
+        nested = data.get("data")
+        params = (nested.get("params") if isinstance(nested, dict) else None) or data.get("params") or []
+        if not isinstance(params, list):
+            return
         changed: dict[tuple[int, int], Any] = {}
         for item in params:
             if isinstance(item, dict) and "siid" in item and "piid" in item:
@@ -133,5 +138,5 @@ class DreameMqttClient:
         if changed:
             try:
                 self._on_update(dict(self.state))
-            except Exception:  # noqa: BLE001
+            except Exception:
                 _LOGGER.exception("Error in MQTT update callback")

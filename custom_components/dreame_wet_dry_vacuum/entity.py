@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -52,4 +53,6 @@ class DreameWetDryEntity(CoordinatorEntity[DreameWetDryCoordinator]):
         return self.coordinator.data.get(self._data_key)
 
     async def _set(self, value: Any) -> bool:
-        return await self.coordinator.async_set_prop(self._siid, self._piid, value)
+        if not await self.coordinator.async_set_prop(self._siid, self._piid, value):
+            raise HomeAssistantError(f"Dreame rejected property {self._data_key}")
+        return True
