@@ -1,0 +1,217 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "ड्रीम वेट एंड ड्राई वैक्यूम",
+        "description": "Dreamehome ऐप के खाते की जानकारी से समर्थित ड्रीम वेट एंड ड्राई वैक्यूम को Home Assistant से जोड़ें।",
+        "data": {
+          "username": "ईमेल",
+          "password": "पासवर्ड",
+          "region": "क्षेत्र"
+        }
+      },
+      "device": {
+        "title": "उपकरण चुनें",
+        "description": "कई ड्रीम उपकरण मिले हैं। अपना वेट एंड ड्राई वैक्यूम चुनें।",
+        "data": {
+          "device_id": "उपकरण"
+        }
+      },
+      "reauth_confirm": {
+        "title": "फिर से प्रमाणित करें",
+        "description": "{username} का ड्रीम पासवर्ड अब मान्य नहीं है। नया पासवर्ड दर्ज करें।",
+        "data": {
+          "password": "पासवर्ड"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "ईमेल या पासवर्ड अमान्य है।",
+      "cannot_connect": "ड्रीम क्लाउड से कनेक्ट नहीं हो सका।",
+      "no_devices": "इस खाते में कोई उपकरण नहीं मिला।"
+    },
+    "abort": {
+      "already_configured": "उपकरण पहले से कॉन्फ़िगर है।",
+      "reauth_successful": "पुनः प्रमाणीकरण सफल रहा।"
+    }
+  },
+  "entity": {
+    "sensor": {
+      "back_brush_left": {
+        "name": "पिछला रोलर ब्रश — शेष मिनट"
+      },
+      "battery": {
+        "name": "बैटरी"
+      },
+      "clean_count_2": {
+        "name": "सफ़ाई की संख्या (वैकल्पिक)"
+      },
+      "consumable_back_brush": {
+        "name": "पिछला रोलर ब्रश — शेष घंटे"
+      },
+      "consumable_filter": {
+        "name": "फ़िल्टर — शेष घंटे"
+      },
+      "consumable_front_brush": {
+        "name": "अगला रोलर ब्रश — शेष घंटे"
+      },
+      "detergent_fav": {
+        "name": "डिटर्जेंट डालने का मोड"
+      },
+      "dustbag_left": {
+        "name": "धूल थैली — शेष मिनट"
+      },
+      "elec_water": {
+        "name": "इलेक्ट्रोलिसिस / डिटर्जेंट"
+      },
+      "error": {
+        "name": "त्रुटि कोड"
+      },
+      "filter_left": {
+        "name": "फ़िल्टर — शेष मिनट"
+      },
+      "front_brush_left": {
+        "name": "अगला रोलर ब्रश — शेष मिनट"
+      },
+      "last_clean_duration": {
+        "name": "पिछली सफ़ाई की अवधि"
+      },
+      "last_clean_time": {
+        "name": "पिछली सफ़ाई"
+      },
+      "last_mop_duration": {
+        "name": "पिछली पोछा-सफ़ाई की अवधि"
+      },
+      "last_vacuum_duration": {
+        "name": "पिछली वैक्यूम सफ़ाई की अवधि"
+      },
+      "level_drying": {
+        "name": "सुखाने का स्तर"
+      },
+      "level_washing": {
+        "name": "धोने का स्तर"
+      },
+      "start_time": {
+        "name": "शुरू होने का समय"
+      },
+      "status": {
+        "name": "स्थिति"
+      },
+      "suck_brush_left": {
+        "name": "सक्शन ब्रश — शेष मिनट"
+      },
+      "suck_filter_left": {
+        "name": "सक्शन फ़िल्टर — शेष मिनट"
+      },
+      "suction_mode": {
+        "name": "सक्शन मोड"
+      },
+      "total_clean_count": {
+        "name": "कुल सफ़ाई की संख्या"
+      },
+      "total_time": {
+        "name": "कुल चलने का समय"
+      },
+      "total_time_self_clean": {
+        "name": "कुल स्व-सफ़ाई समय"
+      },
+      "total_time_self_dry": {
+        "name": "कुल स्व-सुखाने का समय"
+      },
+      "warn": {
+        "name": "चेतावनियाँ"
+      },
+      "warn_push": {
+        "name": "पुश सूचना (मूल मान)"
+      },
+      "water_level": {
+        "name": "पानी का स्तर"
+      },
+      "water_level_set": {
+        "name": "पानी का स्तर (सेटिंग)"
+      },
+      "work_mode": {
+        "name": "कार्य मोड"
+      }
+    },
+    "binary_sensor": {
+      "auto_detergent_17": {
+        "name": "स्वचालित डिटर्जेंट (सेंसर)"
+      },
+      "charging": {
+        "name": "चार्ज हो रहा है"
+      },
+      "clean_water_empty": {
+        "name": "साफ़ पानी की टंकी खाली है"
+      },
+      "detergent_empty": {
+        "name": "डिटर्जेंट खाली है"
+      },
+      "dirty_tank_full": {
+        "name": "गंदे पानी की टंकी भरी है"
+      },
+      "dirty_tank_missing": {
+        "name": "गंदे पानी की टंकी लगी नहीं है"
+      },
+      "dirty_tank_not_clean": {
+        "name": "गंदे पानी की टंकी साफ़ करनी है"
+      },
+      "needs_self_clean": {
+        "name": "स्व-सफ़ाई सुझाई गई है (ब्रश या नली गंदी है)"
+      },
+      "online": {
+        "name": "ऑनलाइन"
+      }
+    },
+    "switch": {
+      "auto_backwash": {
+        "name": "स्वचालित धुलाई"
+      },
+      "auto_dry_switch": {
+        "name": "स्वचालित सुखाना"
+      },
+      "auto_mix_detergent": {
+        "name": "स्वचालित डिटर्जेंट मिश्रण"
+      },
+      "custom_switch": {
+        "name": "कस्टम मोड"
+      },
+      "light_control": {
+        "name": "लाइट"
+      },
+      "time_dry_after_clean": {
+        "name": "सफ़ाई के बाद समयबद्ध सुखाना"
+      }
+    },
+    "number": {
+      "brush_speed": {
+        "name": "ब्रश की गति (कस्टम)"
+      },
+      "clean_power": {
+        "name": "सक्शन पावर (कस्टम)"
+      },
+      "clean_water": {
+        "name": "पानी का प्रवाह (कस्टम)"
+      },
+      "time_dry_value": {
+        "name": "समयबद्ध सुखाने की अवधि"
+      },
+      "volume": {
+        "name": "आवाज़ की मात्रा"
+      }
+    },
+    "select": {
+      "power_wheel": {
+        "name": "पहियों का खिंचाव बल"
+      }
+    },
+    "button": {
+      "start_self_clean": {
+        "name": "स्व-सफ़ाई शुरू करें"
+      },
+      "start_self_dry": {
+        "name": "स्व-सुखाना शुरू करें"
+      }
+    }
+  }
+}

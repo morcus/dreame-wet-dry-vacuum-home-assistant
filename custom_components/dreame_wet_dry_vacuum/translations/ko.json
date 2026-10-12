@@ -1,0 +1,217 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "드리미 습건식 청소기",
+        "description": "Dreamehome 앱 계정 정보로 지원되는 드리미 습건식 청소기를 Home Assistant에 연결합니다.",
+        "data": {
+          "username": "이메일",
+          "password": "비밀번호",
+          "region": "지역"
+        }
+      },
+      "device": {
+        "title": "기기 선택",
+        "description": "드리미 기기가 여러 대 발견되었습니다. 습건식 청소기를 선택하세요.",
+        "data": {
+          "device_id": "기기"
+        }
+      },
+      "reauth_confirm": {
+        "title": "다시 인증",
+        "description": "{username}의 드리미 비밀번호가 더 이상 유효하지 않습니다. 새 비밀번호를 입력하세요.",
+        "data": {
+          "password": "비밀번호"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "이메일 또는 비밀번호가 올바르지 않습니다.",
+      "cannot_connect": "드리미 클라우드에 연결할 수 없습니다.",
+      "no_devices": "이 계정에서 기기를 찾을 수 없습니다."
+    },
+    "abort": {
+      "already_configured": "기기가 이미 설정되어 있습니다.",
+      "reauth_successful": "재인증에 성공했습니다."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "back_brush_left": {
+        "name": "뒤쪽 롤러 브러시 — 남은 시간(분)"
+      },
+      "battery": {
+        "name": "배터리"
+      },
+      "clean_count_2": {
+        "name": "청소 횟수(대체값)"
+      },
+      "consumable_back_brush": {
+        "name": "뒤쪽 롤러 브러시 — 남은 시간(시간)"
+      },
+      "consumable_filter": {
+        "name": "필터 — 남은 시간(시간)"
+      },
+      "consumable_front_brush": {
+        "name": "앞쪽 롤러 브러시 — 남은 시간(시간)"
+      },
+      "detergent_fav": {
+        "name": "세제 투입 모드"
+      },
+      "dustbag_left": {
+        "name": "먼지 봉투 — 남은 시간(분)"
+      },
+      "elec_water": {
+        "name": "전해수 / 세제"
+      },
+      "error": {
+        "name": "오류 코드"
+      },
+      "filter_left": {
+        "name": "필터 — 남은 시간(분)"
+      },
+      "front_brush_left": {
+        "name": "앞쪽 롤러 브러시 — 남은 시간(분)"
+      },
+      "last_clean_duration": {
+        "name": "마지막 청소 시간"
+      },
+      "last_clean_time": {
+        "name": "마지막 청소"
+      },
+      "last_mop_duration": {
+        "name": "마지막 물걸레 청소 시간"
+      },
+      "last_vacuum_duration": {
+        "name": "마지막 진공 청소 시간"
+      },
+      "level_drying": {
+        "name": "건조 단계"
+      },
+      "level_washing": {
+        "name": "세척 단계"
+      },
+      "start_time": {
+        "name": "시작 시간"
+      },
+      "status": {
+        "name": "상태"
+      },
+      "suck_brush_left": {
+        "name": "흡입 브러시 — 남은 시간(분)"
+      },
+      "suck_filter_left": {
+        "name": "흡입 필터 — 남은 시간(분)"
+      },
+      "suction_mode": {
+        "name": "흡입 모드"
+      },
+      "total_clean_count": {
+        "name": "총 청소 횟수"
+      },
+      "total_time": {
+        "name": "총 작동 시간"
+      },
+      "total_time_self_clean": {
+        "name": "총 자동 세척 시간"
+      },
+      "total_time_self_dry": {
+        "name": "총 자동 건조 시간"
+      },
+      "warn": {
+        "name": "경고"
+      },
+      "warn_push": {
+        "name": "푸시 알림(원시 값)"
+      },
+      "water_level": {
+        "name": "수위"
+      },
+      "water_level_set": {
+        "name": "수위(설정값)"
+      },
+      "work_mode": {
+        "name": "작동 모드"
+      }
+    },
+    "binary_sensor": {
+      "auto_detergent_17": {
+        "name": "자동 세제 투입(센서)"
+      },
+      "charging": {
+        "name": "충전 중"
+      },
+      "clean_water_empty": {
+        "name": "깨끗한 물통이 비어 있음"
+      },
+      "detergent_empty": {
+        "name": "세제가 부족함"
+      },
+      "dirty_tank_full": {
+        "name": "오수통이 가득 참"
+      },
+      "dirty_tank_missing": {
+        "name": "오수통이 장착되지 않음"
+      },
+      "dirty_tank_not_clean": {
+        "name": "오수통 청소 필요"
+      },
+      "needs_self_clean": {
+        "name": "자동 세척 권장(브러시 또는 관 오염)"
+      },
+      "online": {
+        "name": "온라인"
+      }
+    },
+    "switch": {
+      "auto_backwash": {
+        "name": "자동 헹굼"
+      },
+      "auto_dry_switch": {
+        "name": "자동 건조"
+      },
+      "auto_mix_detergent": {
+        "name": "자동 세제 혼합"
+      },
+      "custom_switch": {
+        "name": "사용자 지정 모드"
+      },
+      "light_control": {
+        "name": "조명"
+      },
+      "time_dry_after_clean": {
+        "name": "청소 후 예약 건조"
+      }
+    },
+    "number": {
+      "brush_speed": {
+        "name": "브러시 회전 속도(사용자 지정)"
+      },
+      "clean_power": {
+        "name": "흡입력(사용자 지정)"
+      },
+      "clean_water": {
+        "name": "물 공급량(사용자 지정)"
+      },
+      "time_dry_value": {
+        "name": "예약 건조 시간"
+      },
+      "volume": {
+        "name": "음성 안내 음량"
+      }
+    },
+    "select": {
+      "power_wheel": {
+        "name": "바퀴 구동력"
+      }
+    },
+    "button": {
+      "start_self_clean": {
+        "name": "자동 세척 시작"
+      },
+      "start_self_dry": {
+        "name": "자동 건조 시작"
+      }
+    }
+  }
+}

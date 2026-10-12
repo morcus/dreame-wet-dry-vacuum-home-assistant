@@ -1,0 +1,217 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "追觅洗地机",
+        "description": "使用追觅家居应用的账号信息，将受支持的追觅洗地机连接到 Home Assistant。",
+        "data": {
+          "username": "电子邮箱",
+          "password": "密码",
+          "region": "地区"
+        }
+      },
+      "device": {
+        "title": "选择设备",
+        "description": "找到多台追觅设备。请选择您的洗地机。",
+        "data": {
+          "device_id": "设备"
+        }
+      },
+      "reauth_confirm": {
+        "title": "重新验证身份",
+        "description": "{username} 的追觅账号密码已失效。请输入新密码。",
+        "data": {
+          "password": "密码"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "电子邮箱或密码无效。",
+      "cannot_connect": "无法连接到追觅云端。",
+      "no_devices": "此账号下未找到设备。"
+    },
+    "abort": {
+      "already_configured": "设备已配置。",
+      "reauth_successful": "重新验证身份成功。"
+    }
+  },
+  "entity": {
+    "sensor": {
+      "back_brush_left": {
+        "name": "后滚刷 — 剩余分钟数"
+      },
+      "battery": {
+        "name": "电池"
+      },
+      "clean_count_2": {
+        "name": "清洁次数（备用）"
+      },
+      "consumable_back_brush": {
+        "name": "后滚刷 — 剩余小时数"
+      },
+      "consumable_filter": {
+        "name": "滤芯 — 剩余小时数"
+      },
+      "consumable_front_brush": {
+        "name": "前滚刷 — 剩余小时数"
+      },
+      "detergent_fav": {
+        "name": "清洁液投放模式"
+      },
+      "dustbag_left": {
+        "name": "集尘袋 — 剩余分钟数"
+      },
+      "elec_water": {
+        "name": "电解水／清洁液"
+      },
+      "error": {
+        "name": "错误代码"
+      },
+      "filter_left": {
+        "name": "滤芯 — 剩余分钟数"
+      },
+      "front_brush_left": {
+        "name": "前滚刷 — 剩余分钟数"
+      },
+      "last_clean_duration": {
+        "name": "上次清洁时长"
+      },
+      "last_clean_time": {
+        "name": "上次清洁时间"
+      },
+      "last_mop_duration": {
+        "name": "上次拖地时长"
+      },
+      "last_vacuum_duration": {
+        "name": "上次吸尘时长"
+      },
+      "level_drying": {
+        "name": "烘干档位"
+      },
+      "level_washing": {
+        "name": "清洗档位"
+      },
+      "start_time": {
+        "name": "开始时间"
+      },
+      "status": {
+        "name": "状态"
+      },
+      "suck_brush_left": {
+        "name": "吸尘刷 — 剩余分钟数"
+      },
+      "suck_filter_left": {
+        "name": "吸尘滤芯 — 剩余分钟数"
+      },
+      "suction_mode": {
+        "name": "吸力模式"
+      },
+      "total_clean_count": {
+        "name": "累计清洁次数"
+      },
+      "total_time": {
+        "name": "累计运行时间"
+      },
+      "total_time_self_clean": {
+        "name": "累计自清洁时间"
+      },
+      "total_time_self_dry": {
+        "name": "累计自烘干时间"
+      },
+      "warn": {
+        "name": "警告"
+      },
+      "warn_push": {
+        "name": "推送通知（原始值）"
+      },
+      "water_level": {
+        "name": "水位"
+      },
+      "water_level_set": {
+        "name": "水位（设置值）"
+      },
+      "work_mode": {
+        "name": "工作模式"
+      }
+    },
+    "binary_sensor": {
+      "auto_detergent_17": {
+        "name": "自动添加清洁液（传感器）"
+      },
+      "charging": {
+        "name": "正在充电"
+      },
+      "clean_water_empty": {
+        "name": "清水箱已空"
+      },
+      "detergent_empty": {
+        "name": "清洁液已用尽"
+      },
+      "dirty_tank_full": {
+        "name": "污水箱已满"
+      },
+      "dirty_tank_missing": {
+        "name": "污水箱未安装"
+      },
+      "dirty_tank_not_clean": {
+        "name": "污水箱需要清洁"
+      },
+      "needs_self_clean": {
+        "name": "建议自清洁（滚刷或管道脏污）"
+      },
+      "online": {
+        "name": "在线"
+      }
+    },
+    "switch": {
+      "auto_backwash": {
+        "name": "自动冲洗"
+      },
+      "auto_dry_switch": {
+        "name": "自动烘干"
+      },
+      "auto_mix_detergent": {
+        "name": "自动混合清洁液"
+      },
+      "custom_switch": {
+        "name": "自定义模式"
+      },
+      "light_control": {
+        "name": "照明"
+      },
+      "time_dry_after_clean": {
+        "name": "清洁后定时烘干"
+      }
+    },
+    "number": {
+      "brush_speed": {
+        "name": "滚刷转速（自定义）"
+      },
+      "clean_power": {
+        "name": "吸力（自定义）"
+      },
+      "clean_water": {
+        "name": "水流量（自定义）"
+      },
+      "time_dry_value": {
+        "name": "定时烘干时长"
+      },
+      "volume": {
+        "name": "语音音量"
+      }
+    },
+    "select": {
+      "power_wheel": {
+        "name": "助力强度"
+      }
+    },
+    "button": {
+      "start_self_clean": {
+        "name": "启动自清洁"
+      },
+      "start_self_dry": {
+        "name": "启动自烘干"
+      }
+    }
+  }
+}
