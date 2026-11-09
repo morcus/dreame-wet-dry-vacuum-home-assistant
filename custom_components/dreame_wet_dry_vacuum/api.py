@@ -209,6 +209,8 @@ class DreameAPI:
             async with session.post(
                 url, headers=headers, data=data, timeout=self._request_timeout
             ) as resp:
+                if resp.status == 429:
+                    raise DreameAPIError("Dreame cloud rate-limited automatic discovery")
                 if resp.status != 200:
                     text = await resp.text()
                     raise DreameAuthError(f"Login failed ({resp.status}): {text[:200]}")
@@ -293,12 +295,15 @@ class DreameAPI:
             for region in AUTO_REGION_ORDER
         ]
         semaphore = asyncio.Semaphore(AUTO_DISCOVERY_CONCURRENCY)
+        rate_limited = asyncio.Event()
         auth_failures = 0
         other_errors: list[str] = []
 
         async def try_candidate(region: str, country: str):
             nonlocal auth_failures
             async with semaphore:
+                if rate_limited.is_set():
+                    return None
                 client = DreameAPI(
                     self._username,
                     self._password,
@@ -316,6 +321,8 @@ class DreameAPI:
                     auth_failures += 1
                     return None
                 except DreameAPIError as err:
+                    if "rate-limited" in str(err):
+                        rate_limited.set()
                     other_errors.append(f"{region}/{country}: {err}")
                     return None
 
@@ -326,6 +333,10 @@ class DreameAPI:
         try:
             for completed in asyncio.as_completed(tasks):
                 result = await completed
+                if rate_limited.is_set():
+                    raise DreameAPIError(
+                        "Dreame cloud rate-limited automatic discovery; retry later"
+                    )
                 if result and result[2]:
                     region, country, records = result
                     self._region = region
