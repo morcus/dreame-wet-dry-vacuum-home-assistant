@@ -321,7 +321,7 @@ class DreameAPI:
                     auth_failures += 1
                     return None
                 except DreameAPIError as err:
-                    if "rate-limited" in str(err):
+                    if "rate-limited" in str(err) or "(429)" in str(err):
                         rate_limited.set()
                     other_errors.append(f"{region}/{country}: {err}")
                     return None
