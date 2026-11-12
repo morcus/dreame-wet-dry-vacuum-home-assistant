@@ -3,11 +3,11 @@
     "step": {
       "user": {
         "title": "Dreame Wet & Dry Vacuum",
-        "description": "Connect with your Dreame Home credentials. Automatic mode searches all known servers and country codes in parallel.",
+        "description": "Connect with your Dreame Home credentials. Automatic mode signs in once, using your Home Assistant country, and then finds the Dreame server that holds your devices.",
         "data": {
           "username": "Email",
           "password": "Password",
-          "region": "Region (Automatic searches all servers and countries)"
+          "region": "Region (Automatic finds your Dreame server)"
         }
       },
       "device": {
