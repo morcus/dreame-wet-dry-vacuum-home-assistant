@@ -287,7 +287,7 @@ CONF_COUNTRY = "country"
 CONF_DEVICE_ID = "device_id"
 
 REGIONS = {
-    "auto": "Automatic (search all servers and countries)",
+    "auto": "Automatic (find my Dreame server)",
     "eu": "Europe",
     "cn": "China / Asia",
 }
