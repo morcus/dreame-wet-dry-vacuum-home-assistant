@@ -66,8 +66,7 @@ class DreameWetDryConfigFlow(ConfigFlow, domain=DOMAIN):
 
             api = self._api(self._username, self._password, self._region)
             try:
-                if self._region != "auto":
-                    await api.login()
+                await api.login()
                 self._devices = await api.get_devices()
             except DreameAuthError:
                 errors["base"] = "invalid_auth"
