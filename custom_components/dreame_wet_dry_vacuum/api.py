@@ -27,8 +27,20 @@ _LOGGER = logging.getLogger(__name__)
 
 REGION_URLS = {
     "eu": EU_BASE_URL,
+    "de": "https://de.iot.dreame.tech:13267",
     "cn": CN_BASE_URL,
+    "us": "https://us.iot.dreame.tech:13267",
+    "ru": "https://ru.iot.dreame.tech:13267",
+    "tw": "https://tw.iot.dreame.tech:13267",
+    "sg": "https://sg.iot.dreame.tech:13267",
+    "in": "https://in.iot.dreame.tech:13267",
+    "i2": "https://i2.iot.dreame.tech:13267",
+    "kr": "https://kr.iot.dreame.tech:13267",
 }
+
+AUTO_REGION_ORDER = ("eu", "i2", "de", "sg", "us", "in", "tw", "kr", "ru", "cn")
+AUTO_DISCOVERY_TIMEOUT = aiohttp.ClientTimeout(total=10)
+
 
 REQUEST_TIMEOUT = aiohttp.ClientTimeout(total=30)
 
@@ -54,9 +66,9 @@ def _parse_prop_value(value: Any) -> Any:
     return value
 
 
-def _compute_rlc(region: str = "eu") -> str:
+def _compute_rlc(region: str = "eu", country: str = "DE") -> str:
     """Generate the dreame-rlc header value via AES-128-ECB."""
-    plain = f"{region}|en|DE"
+    plain = f"{region}|en|{country.upper()}"
     key = DREAME_RLC_KEY
     cipher = AES.new(key, AES.MODE_ECB)
     # Pad to 16-byte block
@@ -87,16 +99,40 @@ class DreameAPI:
         password: str,
         region: str = "eu",
         session: aiohttp.ClientSession | None = None,
+        country: str = "DE",
+        request_timeout: aiohttp.ClientTimeout | None = None,
     ) -> None:
         self._username = username
         self._password = password
-        self._region = region
-        self._base_url = REGION_URLS.get(region, EU_BASE_URL)
+        self._requested_region = region
+        self._region = "eu" if region == "auto" else region
+        self._country = country.upper()
+        self._base_url = REGION_URLS.get(self._region, EU_BASE_URL)
         self._access_token: str | None = None
         self._uid: str | None = None
         self._session = session
         self._owns_session = session is None
-        self._rlc = _compute_rlc(region)
+        self._request_timeout = request_timeout or (
+            AUTO_DISCOVERY_TIMEOUT if region == "auto" else REQUEST_TIMEOUT
+        )
+        self._rlc = _compute_rlc(self._region, self._country)
+        self._region_discovery_done = False
+        self._authenticated_any = False
+
+    @property
+    def region(self) -> str:
+        """Selected backend region after automatic discovery."""
+        return self._region
+
+    @property
+    def country(self) -> str:
+        """Country code used by the successful Dreame login."""
+        return self._country
+
+    @property
+    def authenticated_any(self) -> bool:
+        """Whether Dreame accepted the account credentials."""
+        return self._authenticated_any
 
     @property
     def uid(self) -> str | None:
@@ -149,14 +185,16 @@ class DreameAPI:
             "type": "account",
             "username": self._username,
             "password": _md5_password(self._password),
-            "country": "DE",
+            "country": self._country,
             "lang": "en",
         }
 
         try:
             async with session.post(
-                url, headers=headers, data=data, timeout=REQUEST_TIMEOUT
+                url, headers=headers, data=data, timeout=self._request_timeout
             ) as resp:
+                if resp.status == 429:
+                    raise DreameAPIError("Dreame cloud rate-limited automatic discovery")
                 if resp.status != 200:
                     text = await resp.text()
                     raise DreameAuthError(f"Login failed ({resp.status}): {text[:200]}")
@@ -168,6 +206,7 @@ class DreameAPI:
             raise DreameAuthError(f"No access_token in response: {result}")
 
         self._access_token = result["access_token"]
+        self._authenticated_any = True
         self._uid = result.get("uid")
         _LOGGER.debug("Dreame login successful, uid=%s", self._uid)
 
@@ -185,7 +224,7 @@ class DreameAPI:
                     url,
                     headers=self._get_auth_headers(),
                     json=payload,
-                    timeout=REQUEST_TIMEOUT,
+                    timeout=self._request_timeout,
                 ) as resp:
                     if resp.status == 401 and attempt == 1:
                         await self.login()
@@ -201,19 +240,71 @@ class DreameAPI:
         raise DreameAPIError("Still unauthorized after re-login")
 
     async def get_devices(self) -> list[dict[str, Any]]:
-        """Return list of devices bound to the account."""
-        payload = {
+        """Return devices, finding the account's Dreame backend in auto mode.
+
+        The password is sent once, with the configured account country.
+        Automatic mode then probes the other known backends with the bearer
+        token that login issued; it never repeats the password against other
+        servers or other countries.
+        """
+        await self._ensure_logged_in()
+        records = await self._get_devices_once()
+        if records or self._requested_region != "auto" or self._region_discovery_done:
+            self._region_discovery_done = True
+            return records
+
+        # One bounded scan per client: an offline or unbound device must not
+        # restart a backend search on every refresh.
+        self._region_discovery_done = True
+        for region in AUTO_REGION_ORDER:
+            if region == self._region:
+                continue
+            candidate = await self._get_devices_from_url(REGION_URLS[region])
+            if candidate:
+                self._region = region
+                self._base_url = REGION_URLS[region]
+                self._rlc = _compute_rlc(region, self._country)
+                _LOGGER.info("Dreame auto-discovery selected backend=%s", region)
+                return candidate
+        return []
+
+    async def _get_devices_once(self) -> list[dict[str, Any]]:
+        """Read the device list from this client's selected backend."""
+        result = await self._authed_post(
+            self._base_url + ENDPOINTS["device_list"], self._device_list_payload()
+        )
+        return self._extract_device_records(result)
+
+    async def _get_devices_from_url(self, base_url: str) -> list[dict[str, Any]]:
+        """Probe another backend with the existing token, without re-login."""
+        session = await self._get_session()
+        try:
+            async with session.post(
+                base_url + ENDPOINTS["device_list"],
+                headers=self._get_auth_headers(),
+                json=self._device_list_payload(),
+                timeout=self._request_timeout,
+            ) as resp:
+                if resp.status != 200:
+                    return []
+                result = await resp.json(content_type=None)
+        except (aiohttp.ClientError, TimeoutError, ValueError):
+            return []
+        return self._extract_device_records(result)
+
+    @staticmethod
+    def _device_list_payload() -> dict[str, Any]:
+        return {
             "sharedStatus": 1,
             "current": 1,
             "size": 100,
             "lang": "en",
             "timestamp": int(time.time() * 1000),
         }
-        result = await self._authed_post(
-            self._base_url + ENDPOINTS["device_list"], payload
-        )
 
-        data = result.get("data") or {}
+    @staticmethod
+    def _extract_device_records(result: dict[str, Any]) -> list[dict[str, Any]]:
+        data = (result or {}).get("data") or {}
         # Dreame nests the list under data.page.records
         records = (data.get("page") or {}).get("records") or []
         if not records:

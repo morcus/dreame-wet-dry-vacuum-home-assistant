@@ -193,3 +193,46 @@ class TestAuthedRequests:
         assert snap["name"] == "H14 Pro"
         assert snap["battery"] == 100
         assert snap["online"] is True
+
+
+class TestAutoDiscovery:
+    """Automatic mode must never send the password to more than one server."""
+
+    @staticmethod
+    def _handler(device_backend: str, logins: list, probes: list):
+        def handler(url, kwargs):
+            if "/oauth/token" in url:
+                logins.append((url, kwargs.get("data", {}).get("country")))
+                return FakeResponse(200, TOKEN_OK)
+            probes.append(url)
+            records = [{"did": "D1", "model": "dreame.hold.w2422"}] if device_backend in url else []
+            return FakeResponse(200, {"code": 0, "data": {"page": {"records": records}}})
+        return handler
+
+    def test_single_login_then_token_probe(self):
+        logins, probes = [], []
+        session = FakeSession(self._handler("sg.iot.dreame.tech", logins, probes))
+        api = DreameAPI("u@example.com", "pw", "auto", session=session, country="IL")
+        devices = run(api.get_devices())
+        assert [d["did"] for d in devices] == ["D1"]
+        assert len(logins) == 1  # password sent exactly once
+        assert logins[0][1] == "IL"  # with the configured country
+        assert api.region == "sg"
+        assert api.authenticated_any
+
+    def test_no_devices_anywhere_scans_once(self):
+        logins, probes = [], []
+        session = FakeSession(self._handler("nowhere", logins, probes))
+        api = DreameAPI("u@example.com", "pw", "auto", session=session, country="IL")
+        assert run(api.get_devices()) == []
+        first = len(probes)
+        assert run(api.get_devices()) == []
+        assert len(logins) == 1
+        assert len(probes) == first + 1  # second call: only the selected backend
+
+    def test_manual_region_does_not_probe(self):
+        logins, probes = [], []
+        session = FakeSession(self._handler("nowhere", logins, probes))
+        api = DreameAPI("u@example.com", "pw", "eu", session=session, country="IL")
+        assert run(api.get_devices()) == []
+        assert len(logins) == 1 and len(probes) == 1
