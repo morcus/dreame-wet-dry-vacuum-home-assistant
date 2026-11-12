@@ -83,7 +83,7 @@ Once this repository is published to the [HACS default store](https://hacs.xyz/d
 
 1. Go to **Settings → Devices & Services → Add Integration**.
 2. Search for **Dreame Wet & Dry Vacuum**.
-3. Enter your **Dreame account email** and **password**. Choose **Automatic** to search the known Dreame servers and country codes in parallel, or select a region manually.
+3. Enter your **Dreame account email** and **password**. Choose **Automatic** to find your Dreame server, or select a region manually. Automatic mode signs in once with the country set in Home Assistant and then checks the known Dreame servers with that session; your password is never sent to more than one server.
 4. If your account has more than one device, pick the vacuum you want to add.
 
 The integration creates one device with all of its entities. State is updated in real time via MQTT, with a web poll every 5 minutes as a safety net.
