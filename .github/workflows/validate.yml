@@ -39,6 +39,6 @@ jobs:
         with:
           python-version: "3.13"
       - name: Install test dependencies
-        run: pip install pytest aiohttp pycryptodome "paho-mqtt>=2.0"
+        run: pip install pytest aiohttp pycryptodome voluptuous "paho-mqtt>=2.0"
       - name: Run tests
         run: pytest -q
