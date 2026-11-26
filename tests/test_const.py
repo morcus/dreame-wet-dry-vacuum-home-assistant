@@ -18,42 +18,42 @@ class TestDecodeFieldAlerts:
         assert decode_field_alerts(0, ERROR_DECODE) == []
 
     def test_warn_bit0_clean_water_empty(self):
-        assert decode_field_alerts(1, WARN_DECODE) == ["Réservoir d'eau propre vide"]
+        assert decode_field_alerts(1, WARN_DECODE) == ["Clean water tank empty"]
 
     def test_warn_bit1_detergent_empty(self):
-        assert decode_field_alerts(2, WARN_DECODE) == ["Détergent vide"]
+        assert decode_field_alerts(2, WARN_DECODE) == ["Detergent empty"]
 
     def test_warn_bit8_dirty_tank_not_clean(self):
         assert decode_field_alerts(1 << 8, WARN_DECODE) == [
-            "Réservoir d'eau sale à nettoyer (après autonettoyage)"
+            "Dirty water tank needs cleaning after self-cleaning"
         ]
 
     def test_warn_bit16_station_water_low(self):
         assert decode_field_alerts(1 << 16, WARN_DECODE) == [
-            "Manque d'eau dans la station"
+            "Station water supply low"
         ]
 
     def test_warn_multiple_bits(self):
         alerts = decode_field_alerts((1 << 16) | 1, WARN_DECODE)
         assert alerts == [
-            "Réservoir d'eau propre vide",
-            "Manque d'eau dans la station",
+            "Clean water tank empty",
+            "Station water supply low",
         ]
 
     def test_error_bit11_dirty_tank_missing(self):
         assert decode_field_alerts(1 << 11, ERROR_DECODE) == [
-            "Réservoir d'eau sale non installé"
+            "Dirty water tank not installed"
         ]
 
     def test_error_bit12_dirty_tank_full(self):
         assert decode_field_alerts(1 << 12, ERROR_DECODE) == [
-            "Réservoir d'eau sale plein — à vider"
+            "Dirty water tank full — empty it"
         ]
 
     def test_error_brush_field_value3_blocked(self):
         # Field at bits 4-9, value 3 = roller brush blocked
         assert decode_field_alerts(3 << 4, ERROR_DECODE) == [
-            "Brosse rouleau bloquée — à nettoyer"
+            "Roller brush blocked — clean it"
         ]
 
     def test_unknown_bits_yield_nothing(self):

@@ -2,7 +2,7 @@
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
 
-A custom [Home Assistant](https://www.home-assistant.io/) integration for **Dreame wet & dry stick vacuums**, developed and tested against the **Dreame H14 Pro** (`dreame.hold.w2306e`).
+A custom [Home Assistant](https://www.home-assistant.io/) integration for **Dreame wet & dry stick vacuums**, developed and tested against the **Dreame H14 Pro** (`dreame.hold.w2306e`), with support for the **Dreame H15 Pro Heat** (`dreame.hold.w2449e`).
 
 It connects to the Dreame cloud, authenticates with your Dreame account, and exposes the device's status, statistics, consumables, alerts and settings as Home Assistant entities. Live state updates are delivered through the cloud **MQTT push** feed, with a periodic web poll as a fallback.
 
@@ -48,6 +48,18 @@ Entity names are translated (English and French) and follow your Home Assistant 
 
 ---
 
+### H15 Pro Heat
+
+The H15 Pro Heat uses a different property layout from the H14. The integration detects the model and adds the H15 controls, named as in the Dreamehome app:
+
+- **Mopping:** cleaning mode, suction, water level, hot water, glidewheel traction, roller brush moisture sensitivity, cleaning solution ratio.
+- **Washing and drying:** self-cleaning and drying modes, automatic wash & dry, smart drying, smart moisture protection, the wash & dry schedule and its days.
+- **Device:** voice volume and language pack, firmware version (read-only update entity).
+- **Cleaning record:** cleaning time today / 7 days / 30 days with the dirt-level split, sessions in the last 7 days, last cleaning.
+- **Maintenance:** roller brush and filter remaining (percent and hours), water tank and detergent alerts.
+
+The last known app settings are cached, so they survive Home Assistant restarts until the device reports them again. Mapping sources and confidence are documented in [H15_MAPPING.md](H15_MAPPING.md).
+
 ## Requirements
 
 - Home Assistant **2025.1.0** or newer
@@ -83,7 +95,7 @@ Once this repository is published to the [HACS default store](https://hacs.xyz/d
 
 1. Go to **Settings → Devices & Services → Add Integration**.
 2. Search for **Dreame Wet & Dry Vacuum**.
-3. Enter your **Dreame account email**, **password**, and **region** (`Europe` or `China / Asia`).
+3. Enter your **Dreame account email** and **password**. Choose **Automatic** to find your Dreame server, or select a region manually. Automatic mode signs in once with the country set in Home Assistant and then checks the known Dreame servers with that session; your password is never sent to more than one server.
 4. If your account has more than one device, pick the vacuum you want to add.
 
 The integration creates one device with all of its entities. State is updated in real time via MQTT, with a web poll every 5 minutes as a safety net.

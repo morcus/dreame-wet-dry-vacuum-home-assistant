@@ -3,11 +3,12 @@
     "step": {
       "user": {
         "title": "Dreame Wet & Dry Vacuum",
-        "description": "Connect your Dreame wet & dry vacuum (developed and tested with the H14 Pro) to Home Assistant using your Dreame Home app credentials.",
+        "description": "Connect using your Dreame Home credentials. The country is taken automatically from Home Assistant; select it only if it is not configured in the system. Automatic cloud server discovery is recommended.",
         "data": {
           "username": "Email",
           "password": "Password",
-          "region": "Region"
+          "region": "Cloud server",
+          "country": "Country"
         }
       },
       "device": {
@@ -132,6 +133,15 @@
       },
       "work_mode": {
         "name": "Work mode"
+      },
+      "consumable_front_brush_percent": {
+        "name": "Roller brush remaining"
+      },
+      "consumable_back_brush_percent": {
+        "name": "Rear brush remaining"
+      },
+      "consumable_filter_percent": {
+        "name": "Filter remaining"
       }
     },
     "binary_sensor": {
@@ -198,6 +208,9 @@
       },
       "volume": {
         "name": "Voice volume"
+      },
+      "h15_volume": {
+        "name": "Voice volume (0: Silent, 1: Low, 2: High)"
       }
     },
     "select": {

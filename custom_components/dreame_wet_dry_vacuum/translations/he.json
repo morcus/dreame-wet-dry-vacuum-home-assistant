@@ -1,0 +1,20 @@
+{
+  "entity": {
+    "number": {
+      "h15_volume": {
+        "name": "עוצמת קול (0: שקט, 1: נמוך, 2: גבוה)"
+      }
+    },
+    "sensor": {
+      "consumable_front_brush_percent": {
+        "name": "יתרת מברשת גליל"
+      },
+      "consumable_back_brush_percent": {
+        "name": "יתרת מברשת אחורית"
+      },
+      "consumable_filter_percent": {
+        "name": "יתרת פילטר"
+      }
+    }
+  }
+}
