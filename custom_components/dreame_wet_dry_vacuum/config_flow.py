@@ -7,17 +7,22 @@ import voluptuous as vol
 from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.selector import CountrySelector
 
-from .api import DreameAPI, DreameAuthError, DreameAPIError
+from .api import DreameAPI, DreameAPIError, DreameAuthError
 from .const import CONF_COUNTRY, CONF_DEVICE_ID, CONF_REGION, DOMAIN, REGIONS
 
-STEP_USER_SCHEMA = vol.Schema(
-    {
+
+def _user_schema(default_country: str | None) -> vol.Schema:
+    """Use HA's country silently; ask only when the system has no country."""
+    fields = {
         vol.Required(CONF_USERNAME): str,
         vol.Required(CONF_PASSWORD): str,
         vol.Required(CONF_REGION, default="auto"): vol.In(REGIONS),
     }
-)
+    if not default_country:
+        fields[vol.Required(CONF_COUNTRY)] = CountrySelector()
+    return vol.Schema(fields)
 
 STEP_REAUTH_SCHEMA = vol.Schema({vol.Required(CONF_PASSWORD): str})
 
@@ -41,30 +46,35 @@ class DreameWetDryConfigFlow(ConfigFlow, domain=DOMAIN):
         self._username: str = ""
         self._password: str = ""
         self._region: str = "auto"
-        self._country: str = "DE"
+        self._country: str = ""
         self._devices: list[dict[str, Any]] = []
 
     def _api(
-        self, username: str, password: str, region: str, country: str | None = None
+        self, username: str, password: str, region: str, country: str
     ) -> DreameAPI:
-        selected_country = (country or self.hass.config.country or "DE").upper()
         return DreameAPI(
             username,
             password,
             region,
+            country=country,
             session=async_get_clientsession(self.hass),
-            country=selected_country,
         )
 
     async def async_step_user(self, user_input=None) -> ConfigFlowResult:
         errors: dict[str, str] = {}
+        country = (self.hass.config.country or "").upper()
+        if len(country) != 2:
+            country = ""
 
         if user_input is not None:
             self._username = user_input[CONF_USERNAME]
             self._password = user_input[CONF_PASSWORD]
             self._region = user_input[CONF_REGION]
+            self._country = (user_input.get(CONF_COUNTRY) or country).upper()
 
-            api = self._api(self._username, self._password, self._region)
+            api = self._api(
+                self._username, self._password, self._region, self._country
+            )
             try:
                 await api.login()
                 self._devices = await api.get_devices()
@@ -74,22 +84,15 @@ class DreameWetDryConfigFlow(ConfigFlow, domain=DOMAIN):
                 errors["base"] = "cannot_connect"
 
             if not errors:
-                if self._region == "auto" and not api.authenticated_any:
-                    errors["base"] = "invalid_auth"
-                elif self._devices:
-                    self._region = api.region
-                    self._country = api.country
-
-                if not errors:
-                    if len(self._devices) == 1:
-                        return await self._async_create_entry(self._devices[0])
-                    if len(self._devices) > 1:
-                        return await self.async_step_device()
-                    errors["base"] = "no_devices"
+                if len(self._devices) == 1:
+                    return await self._async_create_entry(self._devices[0])
+                if len(self._devices) > 1:
+                    return await self.async_step_device()
+                errors["base"] = "no_devices"
 
         return self.async_show_form(
             step_id="user",
-            data_schema=STEP_USER_SCHEMA,
+            data_schema=_user_schema(country or None),
             errors=errors,
         )
 
@@ -147,8 +150,9 @@ class DreameWetDryConfigFlow(ConfigFlow, domain=DOMAIN):
             api = self._api(
                 entry.data[CONF_USERNAME],
                 user_input[CONF_PASSWORD],
-                entry.data.get(CONF_REGION, "eu"),
-                entry.data.get(CONF_COUNTRY, "DE"),
+                entry.data.get(CONF_REGION, "auto"),
+                entry.data.get(CONF_COUNTRY)
+                or (self.hass.config.country or "").upper(),
             )
             try:
                 await api.login()

@@ -99,8 +99,8 @@ class DreameMqttClient:
             self._client.loop_stop()
             try:
                 self._client.disconnect()
-            except Exception:  # noqa: BLE001
-                pass
+            except Exception:
+                _LOGGER.debug("Dreame MQTT disconnect failed during shutdown", exc_info=True)
             self._client = None
 
     def _on_connect(self, client, userdata, flags, reason_code, properties) -> None:
@@ -133,5 +133,5 @@ class DreameMqttClient:
         if changed:
             try:
                 self._on_update(dict(self.state))
-            except Exception:  # noqa: BLE001
+            except Exception:
                 _LOGGER.exception("Error in MQTT update callback")
